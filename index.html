@@ -1,6 +1,577 @@
 <!DOCTYPE html>
 <html lang="es">
-<head><meta charset="UTF-8"><title>Calculadora Viabilidad</title></head>
-<body><h1>Calculadora de Viabilidad Hipotecaria</h1>
-<p>El archivo final incluirá el código completo que te pasé en el mensaje anterior. Sustituye este placeholder si quieres.</p>
-</body></html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Gastos de Compra por CCAA · LF</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    :root {
+      --brand: #1b3b2f;
+      --bg: #f5f5f5;
+      --card-bg: #ffffff;
+    }
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: #222;
+    }
+    header {
+      background: #ffffff;
+      border-bottom: 1px solid #ddd;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.4rem;
+      color: var(--brand);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    header span.brand {
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+    header p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: #555;
+    }
+    main {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 1rem;
+      padding: 1rem 1.5rem 2rem;
+    }
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 1rem 1.2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      border: 1px solid #e4e4e4;
+      margin-bottom: 1rem;
+    }
+    .sidebar-title {
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      color: var(--brand);
+    }
+    label {
+      font-size: 0.85rem;
+      display: block;
+      margin-bottom: 0.25rem;
+      color: #444;
+    }
+    input, select {
+      width: 100%;
+      padding: 0.35rem 0.5rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 0.9rem;
+      margin-bottom: 0.6rem;
+    }
+    input:focus, select:focus {
+      outline: 2px solid rgba(27, 59, 47, 0.2);
+      border-color: var(--brand);
+    }
+    button {
+      border-radius: 999px;
+      border: none;
+      padding: 0.45rem 0.9rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      background: var(--brand);
+      color: white;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    button.secondary {
+      background: #ececec;
+      color: #222;
+    }
+    button:active {
+      transform: scale(0.98);
+    }
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+    @media (max-width: 1000px) {
+      .metrics {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+      }
+    }
+    .metric {
+      background: #fafafa;
+      border-radius: 10px;
+      padding: 0.6rem 0.7rem;
+      border: 1px solid #eee;
+    }
+    .metric-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      color: #777;
+      margin-bottom: 0.15rem;
+    }
+    .metric-value {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--brand);
+    }
+    h2, h3, h4 {
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+      color: var(--brand);
+    }
+    .info {
+      font-size: 0.8rem;
+      color: #555;
+      margin-top: 0.6rem;
+      padding: 0.6rem 0.8rem;
+      background: #f7f7f7;
+      border-radius: 8px;
+      border: 1px solid #e4e4e4;
+    }
+    .table-container {
+      max-height: 320px;
+      overflow: auto;
+      border-radius: 10px;
+      border: 1px solid #e3e3e3;
+      margin-top: 0.5rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+    thead {
+      position: sticky;
+      top: 0;
+      background: #f0f0f0;
+      z-index: 1;
+    }
+    th, td {
+      padding: 0.35rem 0.45rem;
+      border-bottom: 1px solid #eee;
+      text-align: left;
+      white-space: nowrap;
+    }
+    tr:nth-child(even) {
+      background: #fafafa;
+    }
+    td input {
+      width: 100%;
+      margin: 0;
+      padding: 0.25rem 0.35rem;
+      font-size: 0.8rem;
+    }
+    ul {
+      padding-left: 1.2rem;
+      margin-top: 0.4rem;
+      margin-bottom: 0;
+      font-size: 0.9rem;
+    }
+    .badge {
+      display: inline-block;
+      padding: 0.1rem 0.45rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      background: #e6f4ea;
+      color: var(--brand);
+      margin-left: 0.3rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>📑 Gastos de Compra por CCAA · <span class="brand">LF</span></h1>
+      <p>Estimación orientativa de impuestos y gastos por Comunidad Autónoma. Las tasas se pueden editar.</p>
+    </div>
+  </header>
+
+  <main>
+    <!-- SIDEBAR -->
+    <section>
+      <div class="card">
+        <div class="sidebar-title">Parámetros de la operación</div>
+
+        <label for="precio">Precio de la vivienda (€)</label>
+        <input type="number" id="precio" value="250000" min="10000" step="1000" />
+
+        <label for="tipoVivienda">Tipo de vivienda</label>
+        <select id="tipoVivienda">
+          <option>Segunda mano (ITP)</option>
+          <option>Obra nueva (IVA + AJD)</option>
+        </select>
+
+        <label for="hipoteca">Importe de hipoteca (€) [opcional]</label>
+        <input type="number" id="hipoteca" value="200000" min="0" step="1000" />
+
+        <div class="btn-row">
+          <button id="btnCalcular">Calcular gastos</button>
+          <button class="secondary" id="btnReset">Reiniciar</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="sidebar-title">Gastos fijos estimados (ajustables)</div>
+
+        <label for="notaria">Notaría (€)</label>
+        <input type="number" id="notaria" value="800" min="0" step="50" />
+
+        <label for="registro">Registro (€)</label>
+        <input type="number" id="registro" value="400" min="0" step="25" />
+
+        <label for="gestoria">Gestoría (€)</label>
+        <input type="number" id="gestoria" value="350" min="0" step="25" />
+
+        <label for="tasacion">Tasación (€)</label>
+        <input type="number" id="tasacion" value="350" min="0" step="25" />
+      </div>
+
+      <div class="card">
+        <div class="sidebar-title">IVA (solo obra nueva)</div>
+        <label for="ivaPct">IVA %</label>
+        <input type="number" id="ivaPct" value="10.0" min="0" step="0.5" />
+      </div>
+    </section>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <section>
+      <div class="card" id="resumenCard">
+        <h2>Resultado</h2>
+
+        <div style="display:flex; flex-wrap:wrap; gap:0.75rem; align-items:center; margin-bottom:0.5rem;">
+          <div>
+            <label for="ccaaSelect" style="margin-bottom:0.1rem;">Comunidad Autónoma</label>
+            <select id="ccaaSelect"></select>
+          </div>
+          <div class="badge" id="badgeTipo"></div>
+        </div>
+
+        <div class="metrics">
+          <div class="metric">
+            <div class="metric-label">Impuestos estimados</div>
+            <div class="metric-value" id="mImpuestos">-</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Gastos fijos aprox.</div>
+            <div class="metric-value" id="mGastos">-</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Total aprox. a desembolsar</div>
+            <div class="metric-value" id="mTotal">-</div>
+          </div>
+        </div>
+
+        <h4>Detalle de impuestos</h4>
+        <ul id="listaImpuestos">
+          <!-- items dinámicos -->
+        </ul>
+
+        <div class="info">
+          Valores <strong>orientativos</strong>. Revisa ITP/AJD vigentes en tu CCAA y posibles tipos reducidos
+          (jóvenes, familia numerosa, VPO, discapacidad, etc.).
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Tasas por CCAA</h2>
+        <p style="font-size:0.85rem; color:#555; margin-bottom:0.4rem;">
+          Puedes editar las tasas directamente o cargar tu propio CSV con columnas:
+          <code>CCAA, ITP_estimado_%, AJD_estimado_%</code>.
+        </p>
+
+        <div class="btn-row">
+          <button id="btnUpload" class="secondary">📂 Cargar CSV propio</button>
+          <button id="btnDownload">⬇️ Descargar CSV actualizado</button>
+          <input type="file" id="csvInput" accept=".csv" style="display:none;" />
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>CCAA</th>
+                <th>ITP estimado %</th>
+                <th>AJD estimado %</th>
+              </tr>
+            </thead>
+            <tbody id="tasasBody">
+              <!-- filas dinámicas -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // ===== Utilidades =====
+    const fmtCurrency0 = (v) =>
+      new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(v || 0);
+
+    const parseNum = (val) => {
+      const n = parseFloat(val);
+      return isNaN(n) ? 0 : n;
+    };
+
+    // ===== Datos por defecto de CCAA (orientativos/editables) =====
+    let tasas = [
+      { ccaa: "Andalucía", itp: 7.0, ajd: 1.2 },
+      { ccaa: "Aragón", itp: 7.0, ajd: 1.5 },
+      { ccaa: "Asturias", itp: 8.0, ajd: 1.2 },
+      { ccaa: "Baleares", itp: 8.0, ajd: 1.5 },
+      { ccaa: "Canarias", itp: 6.5, ajd: 0.75 },
+      { ccaa: "Cantabria", itp: 10.0, ajd: 1.5 },
+      { ccaa: "Castilla-La Mancha", itp: 9.0, ajd: 1.5 },
+      { ccaa: "Castilla y León", itp: 8.0, ajd: 1.5 },
+      { ccaa: "Cataluña", itp: 10.0, ajd: 1.5 },
+      { ccaa: "Comunidad Valenciana", itp: 10.0, ajd: 1.5 },
+      { ccaa: "Extremadura", itp: 8.0, ajd: 1.5 },
+      { ccaa: "Galicia", itp: 10.0, ajd: 1.5 },
+      { ccaa: "Madrid", itp: 6.0, ajd: 0.75 },
+      { ccaa: "Murcia", itp: 8.0, ajd: 1.5 },
+      { ccaa: "Navarra", itp: 6.0, ajd: 0.5 },
+      { ccaa: "La Rioja", itp: 7.0, ajd: 1.0 },
+      { ccaa: "País Vasco", itp: 4.0, ajd: 0.5 }
+    ];
+
+    let selectedCCAA = tasas[0].ccaa;
+
+    // ===== Render de tabla de tasas =====
+    function renderTasasTable() {
+      const tbody = document.getElementById("tasasBody");
+      tbody.innerHTML = "";
+
+      tasas.forEach((row, idx) => {
+        const tr = document.createElement("tr");
+
+        const tdCCAA = document.createElement("td");
+        const inpCCAA = document.createElement("input");
+        inpCCAA.value = row.ccaa;
+        inpCCAA.oninput = (e) => {
+          tasas[idx].ccaa = e.target.value;
+          renderCCAASelect(); // actualizar lista si cambia el nombre
+        };
+        tdCCAA.appendChild(inpCCAA);
+        tr.appendChild(tdCCAA);
+
+        const tdITP = document.createElement("td");
+        const inpITP = document.createElement("input");
+        inpITP.type = "number";
+        inpITP.step = "0.1";
+        inpITP.value = row.itp;
+        inpITP.oninput = (e) => {
+          tasas[idx].itp = parseNum(e.target.value);
+        };
+        tdITP.appendChild(inpITP);
+        tr.appendChild(tdITP);
+
+        const tdAJD = document.createElement("td");
+        const inpAJD = document.createElement("input");
+        inpAJD.type = "number";
+        inpAJD.step = "0.1";
+        inpAJD.value = row.ajd;
+        inpAJD.oninput = (e) => {
+          tasas[idx].ajd = parseNum(e.target.value);
+        };
+        tdAJD.appendChild(inpAJD);
+        tr.appendChild(tdAJD);
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    // ===== Select de CCAA =====
+    function renderCCAASelect() {
+      const select = document.getElementById("ccaaSelect");
+      const prev = selectedCCAA;
+      select.innerHTML = "";
+      tasas.forEach((row) => {
+        const opt = document.createElement("option");
+        opt.value = row.ccaa;
+        opt.textContent = row.ccaa;
+        select.appendChild(opt);
+      });
+      // mantener selección si existe
+      const exists = tasas.some((r) => r.ccaa === prev);
+      selectedCCAA = exists ? prev : (tasas[0]?.ccaa || "");
+      select.value = selectedCCAA;
+    }
+
+    document.getElementById("ccaaSelect").addEventListener("change", (e) => {
+      selectedCCAA = e.target.value;
+      calcular();
+    });
+
+    // ===== Cálculo principal =====
+    function calcular() {
+      const precio = parseNum(document.getElementById("precio").value);
+      const tipo = document.getElementById("tipoVivienda").value;
+      const notaria = parseNum(document.getElementById("notaria").value);
+      const registro = parseNum(document.getElementById("registro").value);
+      const gestoria = parseNum(document.getElementById("gestoria").value);
+      const tasacion = parseNum(document.getElementById("tasacion").value);
+      const ivaPct = parseNum(document.getElementById("ivaPct").value);
+
+      const badgeTipo = document.getElementById("badgeTipo");
+      badgeTipo.textContent = tipo;
+
+      const gastos = notaria + registro + gestoria + tasacion;
+
+      const tasa = tasas.find((r) => r.ccaa === selectedCCAA);
+      if (!tasa) {
+        document.getElementById("mImpuestos").textContent = "-";
+        document.getElementById("mGastos").textContent = "-";
+        document.getElementById("mTotal").textContent = "-";
+        document.getElementById("listaImpuestos").innerHTML = "";
+        return;
+      }
+      const itp_pct = parseNum(tasa.itp);
+      const ajd_pct = parseNum(tasa.ajd);
+
+      let impuestos = 0;
+      const detalle = [];
+
+      if (tipo.startsWith("Obra nueva")) {
+        const iva = precio * (ivaPct / 100);
+        const ajd = precio * (ajd_pct / 100);
+        impuestos = iva + ajd;
+        detalle.push({ label: `IVA ${ivaPct.toFixed(1)}%`, valor: iva });
+        detalle.push({ label: `AJD ${ajd_pct.toFixed(2)}%`, valor: ajd });
+      } else {
+        const itp = precio * (itp_pct / 100);
+        impuestos = itp;
+        detalle.push({ label: `ITP ${itp_pct.toFixed(2)}%`, valor: itp });
+      }
+
+      const total = impuestos + gastos;
+
+      document.getElementById("mImpuestos").textContent = fmtCurrency0(impuestos);
+      document.getElementById("mGastos").textContent = fmtCurrency0(gastos);
+      document.getElementById("mTotal").textContent = fmtCurrency0(total);
+
+      const ul = document.getElementById("listaImpuestos");
+      ul.innerHTML = "";
+      detalle.forEach((d) => {
+        const li = document.createElement("li");
+        li.innerHTML = `${d.label}: <strong>${fmtCurrency0(d.valor)}</strong>`;
+        ul.appendChild(li);
+      });
+    }
+
+    // ===== CSV: descargar =====
+    function descargarCSV() {
+      const header = "CCAA,ITP_estimado_%,AJD_estimado_%\n";
+      const rows = tasas
+        .map((r) => `${r.ccaa},${r.itp},${r.ajd}`)
+        .join("\n");
+      const csv = header + rows;
+
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "ccaa_tasas_actualizado.csv";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // ===== CSV: cargar =====
+    function cargarCSV(file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target.result;
+        const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
+        if (lines.length <= 1) return;
+
+        const newTasas = [];
+        for (let i = 1; i < lines.length; i++) {
+          const [ccaa, itpStr, ajdStr] = lines[i].split(",");
+          if (!ccaa) continue;
+          newTasas.push({
+            ccaa: ccaa.trim(),
+            itp: parseNum(itpStr),
+            ajd: parseNum(ajdStr)
+          });
+        }
+        if (newTasas.length) {
+          tasas = newTasas;
+          selectedCCAA = tasas[0].ccaa;
+          renderTasasTable();
+          renderCCAASelect();
+          calcular();
+        }
+      };
+      reader.readAsText(file, "utf-8");
+    }
+
+    // ===== Eventos =====
+    document.getElementById("btnCalcular").addEventListener("click", () => {
+      calcular();
+      document.getElementById("resumenCard").scrollIntoView({ behavior: "smooth" });
+    });
+
+    document.getElementById("btnReset").addEventListener("click", () => {
+      document.getElementById("precio").value = 250000;
+      document.getElementById("tipoVivienda").value = "Segunda mano (ITP)";
+      document.getElementById("hipoteca").value = 200000;
+      document.getElementById("notaria").value = 800;
+      document.getElementById("registro").value = 400;
+      document.getElementById("gestoria").value = 350;
+      document.getElementById("tasacion").value = 350;
+      document.getElementById("ivaPct").value = 10.0;
+      tasas = tasas.map((t) => t); // no tocamos los valores editados
+      calcular();
+    });
+
+    document.getElementById("btnDownload").addEventListener("click", descargarCSV);
+
+    document.getElementById("btnUpload").addEventListener("click", () => {
+      document.getElementById("csvInput").click();
+    });
+
+    document.getElementById("csvInput").addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) cargarCSV(file);
+      e.target.value = "";
+    });
+
+    // ===== Init =====
+    renderTasasTable();
+    renderCCAASelect();
+    calcular();
+  </script>
+</body>
+</html>
